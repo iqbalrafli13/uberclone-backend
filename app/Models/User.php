@@ -42,4 +42,14 @@ class User extends Authenticatable
     //     'email_verified_at' => 'datetime',
     //     'password' => 'hashed',
     // ];
+
+    public function driver()
+    {
+        return $this->hasOne(Driver::class);
+    }
+    
+    public function trips()
+    {
+        return $this->hasMany(Trip::class);
+    }
 }
