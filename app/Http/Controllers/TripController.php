@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Trip;
 
 class TripController extends Controller
 {
@@ -14,7 +15,7 @@ class TripController extends Controller
             'destination_name'=>'required',
         ]);
 
-        return $request->user()->trips->create($request->only([
+        return $request->user()->trips()->create($request->only([
             'origin',
             'destination',
             'destination_name',
@@ -36,5 +37,63 @@ class TripController extends Controller
         }
 
         return response()->json(['message'=>'Cannot find this trip'],404);
+    }
+
+    
+    public function accept(Request $request, Trip $trip)
+    {
+        // driver accept the trip
+        $request->validate([
+            'driver_location'=>'required',
+        ]);
+
+        $trip->upadate([
+            'driver_id'=> $request->user()->id,
+            'driver_location'=> $request->driver_location
+        ]);
+
+        $trip->load('driver.user');
+        
+        return $trip;
+    }
+
+    public function start(Request $request, Trip $trip)
+    {
+        // a driver has started taking passanger to their destination
+        $trip->upadate([
+            'is_started'=> true
+        ]);
+
+        $trip->load('driver.user');
+        
+        return $trip;
+    }
+
+    public function end(Request $request, Trip $trip)
+    {
+        // adriver has ended a trip
+        $trip->upadate([
+            'is_complete'=> true
+        ]);
+
+        $trip->load('driver.user');
+        
+        return $trip;
+    }
+
+    public function location(Request $request, Trip $trip)
+    {
+        // update the driver current location
+        $request->validate([
+            'driver_location'=>'required',
+        ]);
+
+        $trip->upadate([
+            'driver_location'=> $request->driver_location
+        ]);
+
+        $trip->load('driver.user');
+        
+        return $trip;
     }
 }
